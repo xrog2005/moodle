@@ -22,3 +22,10 @@ RUN touch /var/log/cron.log
 
 # command executer au demarrage du container
 CMD cron && tail -f /var/log/cron.log
+
+RUN mkdir -p /usr/local/apache2/moodledata
+RUN chown www-data:www-data -R /usr/local/apache2/moodledata
+RUN chmod 750 /usr/local/apache2/moodledata
+
+# command executer au demarrage du container
+CMD cron && tail -f /var/log/cron.log
