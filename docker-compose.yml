@@ -96,12 +96,11 @@ services:
       context: ./docker/cron
       dockerfile: Dockerfile
     container_name: cron-${NOM_CONTAINER}
-
-    volumes_from:
-      - php
+    volumes:
+      -  ${ROOT_DIR}/${PHP_WORK}:/usr/local/apache2/htdocs
+      -  ${ROOT_DIR}/moodledata:/usr/local/apache2/moodledata
     networks:
       - moodle-net
-
 networks:
     moodle-net:
        driver: bridge
