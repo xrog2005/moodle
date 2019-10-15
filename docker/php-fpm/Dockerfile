@@ -25,7 +25,7 @@ RUN apk add --update tzdata  \
 
 
 # mysqli, pdo, pdo_mysql, pdo_pgsql
-RUN apk add --update --no-cache postgresql-dev libintl icu icu-dev libxml2-dev ca-certificates\
+RUN apk add --update --no-cache libintl icu icu-dev libxml2-dev ca-certificates\
 && docker-php-ext-install mysqli pdo pdo_mysql zip soap
 
 RUN apk add --update --no-cache --virtual .ext-deps \
@@ -114,11 +114,6 @@ RUN docker-php-ext-configure opcache --enable-opcache && docker-php-ext-install 
 RUN sed -i -e 's/listen.*/listen = 0.0.0.0:9000/' /usr/local/etc/php-fpm.conf
 
 RUN echo "expose_php=0" > /usr/local/etc/php/php.ini
-
-RUN \
-# Installer Composer a retirer pour utiliser un container
-  curl -sSL https://github.com/composer/composer/releases/download/$COMPOSER_VERSION/composer.phar -o /usr/local/bin/composer && \
-  chmod +x /usr/local/bin/composer
 
 RUN apk add libressl2.7-libcrypto
 #RUN echo "http://dl-4.alpinelinux.org/alpine/edge/community/" >> /etc/apk/repositories && apk update && \
