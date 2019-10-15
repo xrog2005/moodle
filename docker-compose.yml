@@ -1,0 +1,107 @@
+version: '2'
+
+volumes:
+    database_data:
+        driver: local
+
+services:
+  httpd:
+    build:
+      context: ./docker/httpd
+      dockerfile: Dockerfile
+    container_name: http-${NOM_CONTAINER}
+    #restart: always
+    image: apache-moodle:latest
+    ports:
+      - ${APACHE_HOST_HTTP_PORT}:80
+    volumes:
+      #- ${ROOT_DIR}/${APACHE_CONF}/:/usr/local/apache2/conf/httpd.conf
+      - ${ROOT_DIR}/${APACHE_VHOST}/:/usr/local/apache2/conf/vhosts
+      #- ${ROOT_DIR}/${APACHE_CONFD}/:/usr/local/apache2/conf/conf.d
+      #- ${ROOT_DIR}/${APACHE_SSL}/ :/usr/local/apache2/conf/ssl
+      - ${ROOT_DIR}/${APACHE_LOGS}/:/usr/local/apache2/logs:z
+  
+    volumes_from:
+      - php
+        
+    networks:
+      - moodle-net
+
+  php:
+    build:
+      context: ./docker/php-fpm
+      dockerfile: Dockerfile
+    
+    container_name: php-${NOM_CONTAINER}
+    image: php-fpm:7.2.23
+    
+    expose:
+      - ${PHP_EXPOSE}
+    volumes:
+      - ${ROOT_DIR}/${PHP_WORK}:/usr/local/apache2/htdocs:Z
+      - ${ROOT_DIR}/${PHP_CONFIG}:/usr/local/etc/php/php.ini
+      - ${ROOT_DIR}/moodledata:/usr/local/apache2/moodledata
+    depends_on:
+      - db
+
+    networks:
+      - moodle-net
+  
+  db:
+    container_name: mariadb
+    image: mariadb/server:10.3
+    volumes:
+      
+      - ./config/mariadb/:/etc/mysql/conf.d
+      - ${MYSQL_STORAGE}/mariadb:/var/lib/mysql
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=azerty
+      - MYSQL_PASSWORD=azerty
+      - MYSQL_DATABASE=moodle
+      - MYSQL_USER=moodle
+    command:
+      mysqld --innodb-flush-method=littlesync --innodb-use-native-aio=OFF --log_bin=ON
+
+    networks:
+      - moodle-net
+
+  adminer:
+    image: adminer
+    container_name: adminer-${NOM_CONTAINER}
+    links:
+      - db
+    ports:
+      - 8080:8080
+    networks:
+      - moodle-net
+
+  mailhog:
+    build:
+      context: ./docker/mailhog
+      dockerfile: Dockerfile
+    container_name: mailhog-${NOM_CONTAINER}
+    volumes:
+      - ${ROOT_DIR}/${MAIL_STORAGE}:/maildir
+    ports:
+      - 8025:8025
+      - 1025:1025
+    networks:
+      - moodle-net
+
+  cron:
+    image: cron
+    build:
+      context: ./docker/cron
+      dockerfile: Dockerfile
+    container_name: cron-${NOM_CONTAINER}
+
+    volumes_from:
+      - php
+    networks:
+      - moodle-net
+
+networks:
+    moodle-net:
+       driver: bridge

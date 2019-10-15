@@ -1,0 +1,38 @@
+### Environnement
+NOM_RESEAU=moodle-net
+NOM_CONTAINER=moodle
+ROOT_DIR=.
+
+# APP
+REPO_FOLDER=html
+DOCUMENT_ROOT=/usr/local/apache2/htdocs
+MY_TZ=Europe/Paris
+
+# mariadb - mariadb:latest
+
+MYSQL_DATABASE=moodle
+MYSQL_ROOT_PASSWORD=azerty
+MYSQL_USER=moodle
+MYSQL_PASSWORD=moodle
+MYSQL_PORT=3306
+MYSQL_STORAGE=./DATA/database_data
+#MYSQL_CONFIG=./config/mariadb/conf-mysql.cnf
+MYSQL_ENRTYPOINT=./confi/entrypoint-initdb.d/
+
+# PHP FPM
+PHP_EXPOSE=9000
+PHP_WORK=./html
+PHP_CONFIG=./config/php/php.ini
+
+# APACHE2
+APACHE_HOST_HTTP_PORT=80
+APACHE_HOST_HTTPS_PORT=443
+APACHE_CONF=./config/httpd/httpd.conf
+APACHE_VHOST=./config/httpd/vhosts/
+APACHE_CONFD=./config/httpd/conf.d/
+APACHE_LOGS=./logs/
+
+# MAILHOG
+
+MAIL_STORAGE=./DATA/maildata
+
