@@ -12,9 +12,36 @@ Crée rapidement un espace de travail local pour Moodle (Apache2, PHP-FPM et Mar
 2. Cloner ce repository: ```git clone https://github.com/xrog2005/moodle.git```
 3. Aller dans le répertoire moodle: ```cd moodle```
 4. Cloner les sources moodle 3.7 stable: ```git clone -b MOODLE_37_STABLE https://github.com/moodle/moodle.git html```
-5. Construire les containers: ```docker-compose build```
-6. Démarrer l'environnement: ```docker-compose up -d```
-7. Arrêt de l'environnement: ```docker-compose down```
+5. copier  env-variable: ```cp env-variable .env```
+6. Construire les containers: ```docker-compose build```
+7. Démarrer l'environnement: ```docker-compose up -d```
+8. Arrêt de l'environnement: ```docker-compose down```
+
+
+## Variables d'environment 
+Le tableau suivant décrit les variables d’environnement dans [**.env**](.env):
+
+| Variable | Default value | Use |
+| :--- |:--- |:--- |
+| **REPO_FOLDER** | html | Default relative path for Moodle repo |
+| **DOCUMENT_ROOT** | /var/www/html | Mount point inside containers for volume **REPO_FOLDER** |
+| **MY_TZ** | America/Costa_Rica | Containers timezone |
+| **PG_LOCALE** | es_CR | Containers locale |
+| **PG_PORT** | 5432 | Postregres port to expose  |
+| **POSTGRES_DB** | moodle | Postgres DB for Moodle |
+| **POSTGRES_USER** | user | DB user for Moodle |
+| **POSTGRES_PASSWORD** | password | DB password for Moodle |
+| **PHP_SOCKET** | 9000 | PHP-FPM socket to connect apache2  and php-fpm services |
+| **ALIAS_DOMAIN** | localhost | domain alias |
+| **WWW_PORT** | 80 | Web port to be bound |
+| **MOODLE_DATA** | /var/moodledata | Mount point inside containers for Moodle data folder  |
+| **WWWROOT** | localhost | Host part to set in Moodle file 'config.php' for config option 'wwwroot' |
+
+
+
+
+
+
 
 ## Gestion des services
 1. Arrêt d'un service
@@ -32,7 +59,7 @@ docker-compose start
 ``` bash
 docker-compose up -d
 ```
-3. Effacement du project
+3. Arrêt du project
 ``` bash
 docker-compose down
 # Avec les volumes
