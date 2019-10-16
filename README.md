@@ -7,6 +7,13 @@
 
 Crée rapidement un espace de travail local pour Moodle (Apache2, PHP-FPM et MariaDB). L'espace de travail local est créé et géré par Docker Compose
 
+## Mise en place de l'environnement
+1. Ce positionner dans le repertoire /opt
+2. Cloner ce repository: ```git clone https://github.com/xrog2005/moodle.git```
+3. Aller dans le répertoire moodle: ```cd moodle```
+4. Cloner les sources moodle 3.7 stable: ```git clone -b MOODLE_37_STABLE https://github.com/moodle/moodle.git html```
+5. Construire les containers: ```docker-compose build```
+6. Démarrer l'environnement: ```docker-compose up -d```
 
 
 1. Arrêt environnement
