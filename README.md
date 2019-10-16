@@ -14,9 +14,10 @@ Crée rapidement un espace de travail local pour Moodle (Apache2, PHP-FPM et Mar
 4. Cloner les sources moodle 3.7 stable: ```git clone -b MOODLE_37_STABLE https://github.com/moodle/moodle.git html```
 5. Construire les containers: ```docker-compose build```
 6. Démarrer l'environnement: ```docker-compose up -d```
+7. Arrêt de l'environnement: ```docker-compose down```
 
-
-1. Arrêt environnement
+##Gestion des services
+1. Arrêt d'un service
 ``` bash
 docker-compose stop
 # docker-compose stop <service>
