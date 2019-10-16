@@ -5,7 +5,7 @@
 ![MariaDB](https://img.shields.io/badge/MariadDB-10.3-blue.svg?colorB=0085B0)
 ![Cron](https://img.shields.io/badge/Cron-php%3A7.2.23--fpm--stretch-yellow)
 
-
+Crée rapidement un espace de travail local pour Moodle (Apache2, PHP-FPM et MariaDB). L'espace de travail local est créé et géré par Docker Compose
 
 
 
