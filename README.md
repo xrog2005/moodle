@@ -23,19 +23,27 @@ Le tableau suivant décrit les variables d’environnement dans [**.env**](.env)
 
 | Variable | Default value | Use |
 | :--- |:--- |:--- |
-| **REPO_FOLDER** | html | Default relative path for Moodle repo |
-| **DOCUMENT_ROOT** | /var/www/html | Mount point inside containers for volume **REPO_FOLDER** |
-| **MY_TZ** | America/Costa_Rica | Containers timezone |
-| **PG_LOCALE** | es_CR | Containers locale |
-| **PG_PORT** | 5432 | Postregres port to expose  |
-| **POSTGRES_DB** | moodle | Postgres DB for Moodle |
-| **POSTGRES_USER** | user | DB user for Moodle |
-| **POSTGRES_PASSWORD** | password | DB password for Moodle |
-| **PHP_SOCKET** | 9000 | PHP-FPM socket to connect apache2  and php-fpm services |
-| **ALIAS_DOMAIN** | localhost | domain alias |
-| **WWW_PORT** | 80 | Web port to be bound |
-| **MOODLE_DATA** | /var/moodledata | Mount point inside containers for Moodle data folder  |
-| **WWWROOT** | localhost | Host part to set in Moodle file 'config.php' for config option 'wwwroot' |
+| **REPO_FOLDER** | html | Dossier pour les sources  |
+| **DOCUMENT_ROOT** | /usr/local/apache2/htdocs | Point de montage a l'intérieure du container pour le volume **REPO_FOLDER** |
+| **MY_TZ** | Europe/Paris | Fuseau horaire des Containers |
+| **MYSQL_ROOT_PASSWORD** | password | Mot de passe root bdd |
+| **MYSQL_PORT** | 5432 | Port exposé de bdd MariaDB  |
+| **MYSQL_DATABASE** | moodle | Bdd pour moodle |
+| **MYSQL_USER** | user | utilisateur bdd pour moodle |
+| **MYSQL_PASSWORD** | password | Mot de passe bdd pour Moodle |
+| **MYSQL_STORAGE** | /var/lib/mysql | Point de montage a l'intérieur du container pour persister les données dans un volume |
+| **MYSQL_CONFIG** | /etc/mysql/conf.d | Point de montage a l'intérieur du container pour configurer le serveur MariaDB |
+| **MYSQL_ENRTYPOINT** |  |Point de montage a l'intérieur du container pour la création de la bdd a partir d'un dump |
+| **PHP_EXPOSE** | 9000 | Port pour exposer le container  |
+| **PHP_WORK** | /usr/local/apache2/htdocs | Point de montage a l'intérieur du container pour volume **REPO_FOLDER** |
+| **PHP_CONFIG** | /usr/local/etc/php/php.ini |Point de montage a l'intérieur du container pour configurer php |
+| **APACHE_HOST_HTTP_PORT** | 80 | Port pour exposer le container |
+| **APACHE_HOST_HTTPS_PORT** | 443 | Port pour exposer le container |
+| **APACHE_CONF** | /usr/local/apache2/conf/httpd.conf |Point de montage a l'intérieur du container pour httpd.conf |
+| **APACHE_VHOST** | /usr/local/apache2/conf/vhosts | Point de montage a l'intérieur du container pour le vhost |
+| **APACHE_CONFD** | /usr/local/apache2/conf/conf.d |Point de montage a l'intérieur du container pour le volume conf.d |
+| **APACHE_LOGS** | /usr/local/apache2/logs:z | Point de montage a l'intérieur du container pour le dossier logs apache2  |
+
 
 
 
