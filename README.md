@@ -18,6 +18,17 @@ Crée rapidement un espace de travail local pour Moodle (Apache2, PHP-FPM et Mar
 8. Arrêt de l'environnement: ```docker-compose down```
 
 
+## Structure du docker-compose
+
+| Service | Type | Responsabilité| Contient | Configuration |
+| :--- |:--- | :--- | :---| :---|
+| **httpd** | Container | Service http | httpd:2.4.41-alpine | https://hub.docker.com/_/httpd |
+| **cron** | Container | Tache Cron pour Moodle | Debian10, Cron |  |
+| **moodledata** | Volume | [Magasin de données Moodle ](https://docs.moodle.org/all/es/Directorio_Moodledata) | Données générées par moodle |  |
+| **php** | Container | Gestionnaire de processus pour PHP | Alpine linux 3.9, PHP-FPM | PHP modules et dépendance Moodle |
+| **db** | Container | base de donnée  | ubuntu:bionic, Serveur MariaDB  | https://github.com/mariadb-corporation/mariadb-server-docker |
+
+
 ## Variables d'environment 
 Le tableau suivant décrit les variables d’environnement dans [**.env**](.env):
 
@@ -43,11 +54,6 @@ Le tableau suivant décrit les variables d’environnement dans [**.env**](.env)
 | **APACHE_VHOST** | /usr/local/apache2/conf/vhosts | Point de montage a l'intérieur du container pour le vhost |
 | **APACHE_CONFD** | /usr/local/apache2/conf/conf.d |Point de montage a l'intérieur du container pour le volume conf.d |
 | **APACHE_LOGS** | /usr/local/apache2/logs:z | Point de montage a l'intérieur du container pour le dossier logs apache2  |
-
-
-
-
-
 
 
 
