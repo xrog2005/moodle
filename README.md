@@ -16,31 +16,27 @@ Crée rapidement un espace de travail local pour Moodle (Apache2, PHP-FPM et Mar
 6. Démarrer l'environnement: ```docker-compose up -d```
 7. Arrêt de l'environnement: ```docker-compose down```
 
-##Gestion des services
+## Gestion des services
 1. Arrêt d'un service
 ``` bash
 docker-compose stop
 # docker-compose stop <service>
 ```
-2. Démarrage environnement
+2. Démarrage d'un service
 ``` bash
 docker-compose start
 # docker-compose start <service>
 ```
 
-2. Démarrage project
+2. Démarrage de l'environnement
 ``` bash
 docker-compose up -d
-# Different project name
-# docker-compose -p my-proj up -d
 ```
 3. Effacement du project
 ``` bash
 docker-compose down
-# Remove volumes too
-# docker-compose --volumes
-# With different project name:
-# docker-compose -p my-proj down
+# Avec les volumes
+# docker-compose --volumes down
 ```
 4. Logs
 ``` bash
@@ -58,5 +54,6 @@ docker images
  docker exec -it <container_name> bash
 # Verifier les log d'un container
 docker logs <container_name> -f
+Correspond a une commande tail -f
 # Effacement des images dangling
 docker rmi $(docker images -f "dangling=true" -q)
