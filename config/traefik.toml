@@ -1,0 +1,12 @@
+## traefik.toml
+[entryPoints]
+  [entryPoints.http]
+  address = ":80"
+
+
+# API and dashboard configuration
+[api]
+
+# Docker configuration backend
+[docker]
+  domain = "docker.localhost"
