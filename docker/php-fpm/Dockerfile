@@ -1,5 +1,4 @@
-FROM php:7.2.16-fpm-alpine3.9
-
+FROM php:7.2.24-fpm-alpine3.9
 ARG BUILD_DATE
 
 LABEL maintainer="TSEF ROGER Xavier <xavier.roger@intradef.gouv.fr>" \
@@ -9,11 +8,7 @@ LABEL maintainer="TSEF ROGER Xavier <xavier.roger@intradef.gouv.fr>" \
         version="2.0"
 
 ENV WORKDIR "/usr/local/apache2/htdocs/"
-ENV PHPREDIS_VERSION="4.3.0"
-ENV PHP_XDEBUG_VERSION 2.7.0
-ENV COMPOSER_VERSION 1.8.4
 ENV TIMEZONE Europe/Paris
-
 
 # Installation du bash 3.1.6
 RUN apk add bash
@@ -22,7 +17,6 @@ RUN apk add --update tzdata  \
     && cp /usr/share/zoneinfo/${TIMEZONE} /etc/localtime  \
     && echo "${TIMEZONE}" > /etc/timezone  \
     && apk del tzdata
-
 
 # mysqli, pdo, pdo_mysql, pdo_pgsql
 RUN apk add --update --no-cache libintl icu icu-dev libxml2-dev ca-certificates\
@@ -40,14 +34,15 @@ RUN apk add --update --no-cache \
     libjpeg-turbo-dev \
     libmcrypt-dev \
     libpng-dev \
-    && docker-php-ext-install -j"$(getconf _NPROCESSORS_ONLN)" iconv \
+    curl-dev\
+    libxml2-dev \
+    && docker-php-ext-install -j"$(getconf _NPROCESSORS_ONLN)" iconv simplexml xml curl xmlrpc\
     && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ --with-png-dir=/usr/include \
     && docker-php-ext-install -j"$(getconf _NPROCESSORS_ONLN)" gd
+
 # gmp
 RUN apk add gmp gmp-dev \
     && docker-php-ext-install gmp
-
-
 
 # apcu
 RUN docker-php-source extract \
@@ -157,7 +152,6 @@ RUN apk add --update --no-cache \
           yaml-dev && \
       pecl install yaml && \
       docker-php-ext-enable yaml;
-
 
 RUN docker-php-ext-install intl
 COPY ./config/php.ini /usr/local/etc/php/php.ini
