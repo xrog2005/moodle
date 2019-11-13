@@ -1,4 +1,8 @@
-version: '3'
+version: '2'
+
+volumes:
+    database_data:
+        driver: local
 
 services:
   reverse-proxy:
@@ -17,6 +21,9 @@ services:
       - "traefik.port=8080"
       - "traefik.backend=traefik"
       - "traefik.frontend.entryPoints=http"
+      - "traefik.docker.network=internet"
+    environment:
+      - MAXMEM=1024
 
   httpd:
     build:
@@ -26,10 +33,7 @@ services:
     #restart: always
     image: apache-moodle:latest
     volumes:
-      #- ${ROOT_DIR}/${APACHE_CONF}/:/usr/local/apache2/conf/httpd.conf
       - ${ROOT_DIR}/${APACHE_VHOST}/:/usr/local/apache2/conf/vhosts
-      #- ${ROOT_DIR}/${APACHE_CONFD}/:/usr/local/apache2/conf/conf.d
-      #- ${ROOT_DIR}/${APACHE_SSL}/ :/usr/local/apache2/conf/ssl
       - ${ROOT_DIR}/${APACHE_LOGS}/:/usr/local/apache2/logs:z
     labels:
       - "traefik.frontend.rule=Host:www.poc-musette.site.fr" # Nom de domaine 
@@ -37,8 +41,9 @@ services:
       - "traefik.backend=apache" # Nom du Backends
       - "traefik.docker.network=internet" # Nom du reseau (ici web donc accessible de l'exterieure)
       - "traefik.frontend.entryPoints=http" # nom de entryPoints ici http dans fichier ./conf/traefik.tom
-    depends_on:
-      - php        
+    volumes_from:
+      - php
+        
     networks:
       - internet
       - moodle-interne
@@ -46,26 +51,31 @@ services:
   php:
     build:
       context: ./docker/php-fpm
-      dockerfile: Dockerfile  
+      dockerfile: Dockerfile
+   
     container_name: php-${NOM_CONTAINER}
     image: php-fpm:7.2.23
     volumes:
       - ${ROOT_DIR}/${PHP_WORK}:/usr/local/apache2/htdocs:Z
       - ${ROOT_DIR}/${PHP_CONFIG}:/usr/local/etc/php/php.ini
-      - ${ROOT_DIR}/moodledata:/usr/local/apache2/moodledata  
+      - ${ROOT_DIR}/moodledata:/usr/local/apache2/moodledata
+    
     labels:
       - traefik.enable=false 
     depends_on:
       - db
+    links:
+      - db
     networks:
       - moodle-interne
-  
+      
   db:
     container_name: mariadb
     image: mariadb/server:10.3
-    volumes:     
+    volumes:  
       - ./config/mariadb/:/etc/mysql/conf.d
       - ${MYSQL_STORAGE}/mariadb:/var/lib/mysql
+  
     environment:
       - MYSQL_ROOT_PASSWORD=azerty
       - MYSQL_PASSWORD=azerty
@@ -73,6 +83,7 @@ services:
       - MYSQL_USER=moodle
     command:
       mysqld --innodb-flush-method=littlesync --innodb-use-native-aio=OFF --log_bin=ON
+
     labels:
       - traefik.enable=false # Non visible par traefik
     networks:
@@ -88,6 +99,7 @@ services:
       - traefik.frontend.rule=Host:db-admin.poc-musette.site.fr
       - traefik.docker.network=internet
       - traefik.port=8080
+    
     networks:
       - moodle-interne
       - internet
@@ -99,9 +111,8 @@ services:
     container_name: mailhog-${NOM_CONTAINER}
     volumes:
       - ${ROOT_DIR}/${MAIL_STORAGE}:/maildir
-      
     labels:
-      - traefik.backend=adminer
+      - traefik.backend=mailhog
       - traefik.frontend.rule=Host:mailhog.poc-musette.site.fr
       - traefik.docker.network=internet
       - traefik.port=8025
