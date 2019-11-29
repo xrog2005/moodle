@@ -5,6 +5,26 @@ volumes:
         driver: local
 
 services:
+  reverse-proxy:
+    image: traefik:v1.7 
+    networks:
+      - internet
+    command: --api --docker # Active l'interface de gestion et dit a docker d'ecouter docker
+    ports:
+      - "80:80"     #  HTTP port
+      - "8080:8080" # interface de gestion (activer par --api)
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # Pour que Traefik puisse écouter les événements Docker
+      - "./config/traefik.toml:/etc/traefik/traefik.toml"
+    labels:
+      - "traefik.frontend.rule=Host:traefik.poc-musette.site.fr"
+      - "traefik.port=8080"
+      - "traefik.backend=traefik"
+      - "traefik.frontend.entryPoints=http"
+      - "traefik.docker.network=internet"
+    environment:
+      - MAXMEM=1024
+
   httpd:
     build:
       context: ./docker/httpd
@@ -12,50 +32,51 @@ services:
     container_name: http-${NOM_CONTAINER}
     #restart: always
     image: apache-moodle:latest
-    ports:
-      - ${APACHE_HOST_HTTP_PORT}:80
     volumes:
-      #- ${ROOT_DIR}/${APACHE_CONF}/:/usr/local/apache2/conf/httpd.conf
       - ${ROOT_DIR}/${APACHE_VHOST}/:/usr/local/apache2/conf/vhosts
-      #- ${ROOT_DIR}/${APACHE_CONFD}/:/usr/local/apache2/conf/conf.d
-      #- ${ROOT_DIR}/${APACHE_SSL}/ :/usr/local/apache2/conf/ssl
       - ${ROOT_DIR}/${APACHE_LOGS}/:/usr/local/apache2/logs:z
-  
+      #- ${ROOT_DIR}/${APACHE_SSL}/ :/usr/local/apache2/conf/ssl # Decommenter et mettre les certificats pour https
+    labels:
+      - "traefik.frontend.rule=Host:www.poc-musette.site.fr" # Nom de domaine 
+      - "traefik.port=80" # Port sur lequel le firewall laisse passer
+      - "traefik.backend=apache" # Nom du Backends
+      - "traefik.docker.network=internet" # Nom du reseau (ici web donc accessible de l'exterieure)
+      - "traefik.frontend.entryPoints=http" # nom de entryPoints ici http dans fichier ./conf/traefik.tom
     volumes_from:
       - php
         
     networks:
-      - moodle-net
+      - internet
+      - moodle-interne
 
   php:
     build:
       context: ./docker/php-fpm
       dockerfile: Dockerfile
-    
+   
     container_name: php-${NOM_CONTAINER}
     image: php-fpm:7.2.23
-    
-    expose:
-      - ${PHP_EXPOSE}
     volumes:
       - ${ROOT_DIR}/${PHP_WORK}:/usr/local/apache2/htdocs:Z
       - ${ROOT_DIR}/${PHP_CONFIG}:/usr/local/etc/php/php.ini
       - ${ROOT_DIR}/moodledata:/usr/local/apache2/moodledata
+    
+    labels:
+      - traefik.enable=false 
     depends_on:
       - db
-
+    links:
+      - db
     networks:
-      - moodle-net
-  
+      - moodle-interne
+      
   db:
     container_name: mariadb
     image: mariadb/server:10.3
-    volumes:
-      
+    volumes:  
       - ./config/mariadb/:/etc/mysql/conf.d
       - ${MYSQL_STORAGE}/mariadb:/var/lib/mysql
-    ports:
-      - 3306:3306
+  
     environment:
       - MYSQL_ROOT_PASSWORD=azerty
       - MYSQL_PASSWORD=azerty
@@ -64,19 +85,26 @@ services:
     command:
       mysqld --innodb-flush-method=littlesync --innodb-use-native-aio=OFF --log_bin=ON
 
+    labels:
+      - traefik.enable=false # Non visible par traefik
     networks:
-      - moodle-net
+      - moodle-interne
 
   adminer:
     image: adminer
     container_name: adminer-${NOM_CONTAINER}
     links:
       - db
-    ports:
-      - 8080:8080
+    labels:
+      - traefik.backend=adminer
+      - traefik.frontend.rule=Host:db-admin.poc-musette.site.fr
+      - traefik.docker.network=internet
+      - traefik.port=8080
+    
     networks:
-      - moodle-net
-
+      - moodle-interne
+      - internet
+  
   mailhog:
     build:
       context: ./docker/mailhog
@@ -84,23 +112,17 @@ services:
     container_name: mailhog-${NOM_CONTAINER}
     volumes:
       - ${ROOT_DIR}/${MAIL_STORAGE}:/maildir
-    ports:
-      - 8025:8025
-      - 1025:1025
+    labels:
+      - traefik.backend=mailhog
+      - traefik.frontend.rule=Host:mailhog.poc-musette.site.fr
+      - traefik.docker.network=internet
+      - traefik.port=8025
     networks:
-      - moodle-net
-
-  cron:
-    image: cron
-    build:
-      context: ./docker/cron
-      dockerfile: Dockerfile
-    container_name: cron-${NOM_CONTAINER}
-    volumes:
-      -  ${ROOT_DIR}/${PHP_WORK}:/usr/local/apache2/htdocs
-      -  ${ROOT_DIR}/moodledata:/usr/local/apache2/moodledata
-    networks:
-      - moodle-net
+      - moodle-interne
+      - internet
+ 
 networks:
-    moodle-net:
-       driver: bridge
+  internet:
+    external: true
+  moodle-interne:
+    external: false
